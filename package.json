@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/sennaTia/Discord-BotLJ3/issues"
   },
-  "homepage": "https://github.com/sennaTia/Discord-BotLJ3#readme"
+  "homepage": "https://github.com/sennaTia/Discord-BotLJ3#readme",
+  "dependencies": {
+    "discord.js": "^14.28.1",
+    "node.js": "^0.0.1-security"
+  },
+  "devDependencies": {}
 }
