@@ -30,22 +30,20 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
-  if (interaction.commandName === 'help') {
-    await interaction.reply(
-      '**Spelregels en Beschikbare Commando\'s:**\n\n' +
-      '**Spelregels:**\n' +
-      '• Tel om en om door in het kanaal.\n' +
-      '• Je mag niet twee keer achter elkaar tellen.\n' +
-      '• Als iemand een fout maakt, verbreekt de reeks!\n\n' +
-      '**Beschikbare Commando\'s:**\n' +
-      '• `/help` - Bekijk de spelregels en uitleg.\n' +
-      '• `/guilty` - Bekijk wie de reeksen verbreekt[cite: 1].\n' +
-      '• `/pr` - Bekijk het telrecord van de server[cite: 1].'
-    );
-  }
+    if (interaction.commandName === 'help') {
+        await interaction.reply(
+            '**Spelregels en Beschikbare Commando\'s:**\n\n' +
+            '**Spelregels:**\n' +
+            '• Tel om en om door in het kanaal.\n' +
+            '• Je mag niet twee keer achter elkaar tellen.\n' +
+            '• Als iemand een fout maakt, verbreekt de reeks!\n\n' +
+            '**Beschikbare Commando\'s:**\n' +
+            '• `/help` - Bekijk de spelregels en uitleg.\n' +
+            '• `/guilty` - Bekijk wie de reeksen verbreekt.\n' +
+            '• `/pr` - Bekijk het telrecord van de server.'
+        );
+    }
 });
-
-client.login(process.env.DISCORD_TOKEN);
 
 client.once(Events.ClientReady, async () => {
   console.log(`Bot online als ${client.user.tag}`);
@@ -73,18 +71,24 @@ client.on(Events.InteractionCreate, async (interaction) => {
     const data = leesData();
     let antwoord;
 
+    // GUILTY COMMANDO
     if (interaction.commandName === "guilty") {
-      const laatste = data.lastBreakerId
-        ? `<@${data.lastBreakerId}>`
-        : "Nog niemand";
-
-      const record = data.prBreakerId
-        ? `<@${data.prBreakerId}>`
-        : "Nog niemand";
+      const laatste = data.lastBreakerId ? `<@${data.lastBreakerId}>` : "Nog niemand";
+      const record = data.prBreakerId ? `<@${data.prBreakerId}>` : "Nog niemand";
 
       antwoord =
-        `Laatste reeks verbroken door: ${laatste}\n` +
-        `Recordreeks verbroken door: ${record}`;
+        `❌ **Laatste reeks verbroken door:** ${laatste}\n` +
+        `🏆 **Recordreeks verbroken door:** ${record}`;
+    }
+
+    // PR COMMANDO
+    if (interaction.commandName === "pr") {
+      const record = data.highestCount || 0;
+      const houder = data.prUserId ? `<@${data.prUserId}>` : "Nog niemand";
+
+      antwoord = 
+        `🏆 **Telrecord:** ${record}\n` +
+        `👑 **Gehaald door:** ${houder}`;
     }
 
     if (antwoord) {
