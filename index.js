@@ -1,4 +1,3 @@
-
 const { Client, Events, GatewayIntentBits } = require("discord.js");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -27,6 +26,23 @@ function slaDataOp(data) {
   fs.writeFileSync(tijdelijk, JSON.stringify(data, null, 2));
   fs.renameSync(tijdelijk, DATA_FILE);
 }
+
+// Start de bot
+client.once('ready', () => {
+    console.log(`Bot is ingelogd als ${client.user.tag}!`);
+});
+
+// Handel het /help commando af
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isChatInputCommand()) return;
+
+    if (interaction.commandName === 'help') {
+        await interaction.reply(
+            '**Spelregels en Beschikbare Commando\'s:**\n' +
+            'Geeft een korte uitleg van de spelregels en de beschikbare commando\'s.'
+        );
+    }
+});
 
 // Start de bot
 client.login(process.env.DISCORD_TOKEN);
