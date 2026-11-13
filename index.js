@@ -30,19 +30,19 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
-    if (interaction.commandName === 'help') {
-        await interaction.reply(
-            '**Spelregels en Beschikbare Commando\'s:**\n\n' +
-            '**Spelregels:**\n' +
-            '• Tel om en om door in het kanaal.\n' +
-            '• Je mag niet twee keer achter elkaar tellen.\n' +
-            '• Als iemand een fout maakt, verbreekt de reeks!\n\n' +
-            '**Beschikbare Commando\'s:**\n' +
-            '• `/help` - Bekijk de spelregels en uitleg.\n' +
-            '• `/guilty` - Bekijk wie de reeksen verbreekt.\n' +
-            '• `/pr` - Bekijk het telrecord van de server.'
-        );
-    }
+  if (interaction.commandName === 'help') {
+    await interaction.reply(
+      '**Spelregels en Beschikbare Commando\'s:**\n\n' +
+      '**Spelregels:**\n' +
+      '• Tel om en om door in het kanaal.\n' +
+      '• Je mag niet twee keer achter elkaar tellen.\n' +
+      '• Als iemand een fout maakt, verbreekt de reeks!\n\n' +
+      '**Beschikbare Commando\'s:**\n' +
+      '• `/help` - Bekijk de spelregels en uitleg.\n' +
+      '• `/guilty` - Bekijk wie de reeksen verbreekt.\n' +
+      '• `/pr` - Bekijk het telrecord van de server.'
+    );
+  }
 });
 
 client.once(Events.ClientReady, async () => {
@@ -85,7 +85,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
       const record = data.pr || 0;
       const houder = data.prBreakerId ? `<@${data.prBreakerId}>` : "Nog niemand";
 
-      antwoord = 
+      antwoord =
         `🏆 **Telrecord:** ${record}\n` +
         `👑 **Gehaald door:** ${houder}`;
     }
@@ -101,6 +101,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
+let laatsteTellerId = null;
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
   if (message.channelId !== process.env.COUNT_CHANNEL_ID) return;
@@ -109,9 +110,12 @@ client.on(Events.MessageCreate, async (message) => {
     const data = leesData();
     const volgende = data.currentScore + 1;
     const juist = message.content.trim() === String(volgende);
+    const zelfdeGebruiker = message.author.id === laatsteTellerId;
+    const geldig = juist && !zelfdeGebruiker;
 
-    if (juist) {
+    if (geldig) {
       data.currentScore = volgende;
+      laatsteTellerId = message.author.id;
 
       if (volgende > data.pr) {
         data.pr = volgende;
@@ -123,10 +127,11 @@ client.on(Events.MessageCreate, async (message) => {
 
       data.lastBreakerId = message.author.id;
       data.currentScore = 0;
+      laatsteTellerId = null;
     }
     slaDataOp(data);
 
-    if (juist) {
+    if (geldig) {
       await message.reply({
         content: `✅ ${volgende}`,
         allowedMentions: { repliedUser: false }
@@ -146,8 +151,9 @@ client.on(Events.MessageCreate, async (message) => {
       }
     } else {
       await message.reply({
-        content: "❌ Verkeerd getal! We beginnen opnieuw bij 0.",
-        allowedMentions: { repliedUser: false }
+        content: zelfdeGebruiker
+          ? "❌ Je mag niet twee keer achter elkaar tellen! We beginnen opnieuw bij 1."
+          : "❌ Verkeerd getal! We beginnen opnieuw bij 1.",
       });
     }
   } catch (error) {
