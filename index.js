@@ -80,8 +80,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         `❌ **Laatste reeks verbroken door:** ${laatste}\n` +
         `🏆 **Recordreeks verbroken door:** ${record}`;
     }
-
-    // PR COMMANDO
+// PR COMMANDO
     if (interaction.commandName === "pr") {
       const record = data.pr || 0;
 
