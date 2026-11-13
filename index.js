@@ -80,11 +80,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
         `❌ **Laatste reeks verbroken door:** ${laatste}\n` +
         `🏆 **Recordreeks verbroken door:** ${record}`;
     }
-
-    // PR COMMANDO
+// PR COMMANDO
     if (interaction.commandName === "pr") {
-      const record = data.highestCount || 0;
-      const houder = data.prUserId ? `<@${data.prUserId}>` : "Nog niemand";
+      const record = data.pr || 0;
+      const houder = data.prBreakerId ? `<@${data.prBreakerId}>` : "Nog niemand";
 
       antwoord = 
         `🏆 **Telrecord:** ${record}\n` +
