@@ -80,7 +80,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         `❌ **Laatste reeks verbroken door:** ${laatste}\n` +
         `🏆 **Recordreeks verbroken door:** ${record}`;
     }
-// PR COMMANDO
+    // PR COMMANDO
     if (interaction.commandName === "pr") {
       const record = data.pr || 0;
 
@@ -138,10 +138,7 @@ client.on(Events.MessageCreate, async (message) => {
         const tekst = `Gefeliciteerd! ${volgende} bereikt!`;
 
         if (GIF_URL) {
-          await message.channel.send({
-            content: tekst,
-            embeds: [{ image: { url: GIF_URL } }]
-          });
+          await message.channel.send(`${tekst}\n${GIF_URL}`);
         } else {
           await message.channel.send(tekst);
         }
