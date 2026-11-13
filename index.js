@@ -83,12 +83,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     // PR COMMANDO
     if (interaction.commandName === "pr") {
-      const record = data.highestCount || 0;
-      const houder = data.prUserId ? `<@${data.prUserId}>` : "Nog niemand";
+      const record = data.pr || 0;
 
-      antwoord =
-        `🏆 **Telrecord:** ${record}\n` +
-        `👑 **Gehaald door:** ${houder}`;
+      antwoord = `🏆 **Het huidige telrecord is:** ${record}`;
     }
 
     if (antwoord) {
