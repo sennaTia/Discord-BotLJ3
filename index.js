@@ -24,25 +24,25 @@ function slaDataOp(data) {
 }
 
 client.once('ready', () => {
-    console.log(`Bot is ingelogd als ${client.user.tag}!`);
+  console.log(`Bot is ingelogd als ${client.user.tag}!`);
 });
 
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isChatInputCommand()) return;
+  if (!interaction.isChatInputCommand()) return;
 
-    if (interaction.commandName === 'help') {
-        await interaction.reply(
-            '**Spelregels en Beschikbare Commando\'s:**\n\n' +
-            '**Spelregels:**\n' +
-            '• Tel om en om door in het kanaal.\n' +
-            '• Je mag niet twee keer achter elkaar tellen.\n' +
-            '• Als iemand een fout maakt, verbreekt de reeks!\n\n' +
-            '**Beschikbare Commando\'s:**\n' +
-            '• `/help` - Bekijk de spelregels en uitleg.\n' +
-            '• `/guilty` - Bekijk wie de reeksen verbreekt[cite: 1].\n' +
-            '• `/pr` - Bekijk het telrecord van de server[cite: 1].'
-        );
-    }
+  if (interaction.commandName === 'help') {
+    await interaction.reply(
+      '**Spelregels en Beschikbare Commando\'s:**\n\n' +
+      '**Spelregels:**\n' +
+      '• Tel om en om door in het kanaal.\n' +
+      '• Je mag niet twee keer achter elkaar tellen.\n' +
+      '• Als iemand een fout maakt, verbreekt de reeks!\n\n' +
+      '**Beschikbare Commando\'s:**\n' +
+      '• `/help` - Bekijk de spelregels en uitleg.\n' +
+      '• `/guilty` - Bekijk wie de reeksen verbreekt[cite: 1].\n' +
+      '• `/pr` - Bekijk het telrecord van de server[cite: 1].'
+    );
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
@@ -83,8 +83,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
         : "Nog niemand";
 
       antwoord =
-        `❌ Laatste reeks verbroken door: ${laatste}\n` +
-        `🏆 Recordreeks verbroken door: ${record}`;
+        `Laatste reeks verbroken door: ${laatste}\n` +
+        `Recordreeks verbroken door: ${record}`;
     }
 
     if (antwoord) {
@@ -98,5 +98,60 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
+client.on(Events.MessageCreate, async (message) => {
+  if (message.author.bot) return;
+  if (message.channelId !== process.env.COUNT_CHANNEL_ID) return;
+
+  try {
+    const data = leesData();
+    const volgende = data.currentScore + 1;
+    const juist = message.content.trim() === String(volgende);
+
+    if (juist) {
+      data.currentScore = volgende;
+
+      if (volgende > data.pr) {
+        data.pr = volgende;
+      }
+    } else {
+      if (data.currentScore === data.pr && data.pr >= 0) {
+        data.prBreakerId = message.author.id;
+      }
+
+      data.lastBreakerId = message.author.id;
+      data.currentScore = 0;
+    }
+    slaDataOp(data);
+
+    if (juist) {
+      await message.reply({
+        content: `✅ ${volgende}`,
+        allowedMentions: { repliedUser: false }
+      });
+
+      if (volgende > 0 && volgende % 100 === 0) {
+        const tekst = `Gefeliciteerd! ${volgende} bereikt!`;
+
+        if (GIF_URL) {
+          await message.channel.send({
+            content: tekst,
+            embeds: [{ image: { url: GIF_URL } }]
+          });
+        } else {
+          await message.channel.send(tekst);
+        }
+      }
+    } else {
+      await message.reply({
+        content: "❌ Verkeerd getal! We beginnen opnieuw bij 0.",
+        allowedMentions: { repliedUser: false }
+      });
+    }
+  } catch (error) {
+    console.error("Fout bij tellen:", error);
+  }
+});
+
+
 client.login(process.env.DISCORD_TOKEN);
- 
+
